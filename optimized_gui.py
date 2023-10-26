@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-symbol='TRBUSDT'
-leverage="25"
+symbol='DOGEUSDT'
+leverage="70"
 take_profit_percentage = 0.5  # Represents 0.5%
 stop_loss_percentage = 0.4   # Represents 0.4%
 
@@ -318,7 +318,7 @@ class MyApp(QWidget):
 
         try:
             # Set the trading stop (stop loss) level
-            self.session.set_trading_stop(category="linear", symbol=symbol, stopLoss=self.myStopLoss, positionIdx=0)
+            # self.session.set_trading_stop(category="linear", symbol=symbol, stopLoss=self.myStopLoss, positionIdx=0)
 
             # Place a limit order for take profit
             self.session.place_order(category="linear", symbol=symbol, side=("Sell" if side == "Buy" else "Buy"),
@@ -326,6 +326,7 @@ class MyApp(QWidget):
                                      timeInForce="PostOnly", positionIdx="0")
             print(f"{side} position placed")
         except Exception as e:
+            # self.close_position_clicked()
             print(f"settakeprofit error{e}")
 
 if __name__ == '__main__':
