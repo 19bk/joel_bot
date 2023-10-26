@@ -6,6 +6,10 @@ from time import sleep
 import sys
 from PyQt5.QtCore import pyqtSignal, QThread, QDateTime, QObject
 from PyQt5.QtCore import QTimer
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 symbol='TRBUSDT'
 leverage="25"
@@ -326,6 +330,8 @@ class MyApp(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = MyApp("LUTr5ux8UK85oMM5Tj", "tSbq88myGBidovLvlIxAbDlbVpmRgdyYklBv")
+    API_KEY = os.getenv("API_KEY")
+    API_SECRET = os.getenv("API_SECRET")
+    ex = MyApp(API_KEY, API_SECRET)
     ex.start_pnl_thread()
     sys.exit(app.exec_())
