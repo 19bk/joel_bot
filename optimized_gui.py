@@ -1,4 +1,6 @@
 import random
+import os
+from dotenv import load_dotenv
 from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QTextEdit, QLabel
 from pybit.unified_trading import HTTP
 import ccxt
@@ -9,10 +11,22 @@ from PyQt5.QtCore import QTimer
 import os
 from dotenv import load_dotenv
 
+<<<<<<< HEAD
 load_dotenv()
 
 symbol='DOGEUSDT'
 leverage="70"
+=======
+# Load environment variables from the .env file
+load_dotenv()
+
+# Fetch API_KEY and API_SECRET from environment variables
+API_KEY = os.getenv("API_KEY")
+API_SECRET = os.getenv("API_SECRET")
+
+symbol='TRBUSDT'
+leverage="25"
+>>>>>>> c1d59e8 (	new file:   .gitignore)
 take_profit_percentage = 0.5  # Represents 0.5%
 stop_loss_percentage = 0.4   # Represents 0.4%
 
@@ -331,8 +345,12 @@ class MyApp(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+<<<<<<< HEAD
     API_KEY = os.getenv("API_KEY")
     API_SECRET = os.getenv("API_SECRET")
     ex = MyApp(API_KEY, API_SECRET)
+=======
+    ex = MyApp(API_KEY, API_SECRET)  # Using the environment variables here
+>>>>>>> c1d59e8 (	new file:   .gitignore)
     ex.start_pnl_thread()
     sys.exit(app.exec_())
