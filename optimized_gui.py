@@ -18,9 +18,9 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 API_SECRET = os.getenv("API_SECRET")
 
-symbol='TRBUSDT'
-leverage="25"
-take_profit_percentage = 0.5  # Represents 0.5%
+symbol='BTCUSDT'
+leverage="50"
+take_profit_percentage = 0.6  # Represents 0.5%
 stop_loss_percentage = 0.4   # Represents 0.4%
 
 class PnlThread(QThread):
@@ -325,8 +325,7 @@ class MyApp(QWidget):
 
         try:
             # Set the trading stop (stop loss) level
-            # self.session.set_trading_stop(category="linear", symbol=symbol, stopLoss=self.myStopLoss, positionIdx=0)
-
+            self.session.set_trading_stop(category="linear", symbol=symbol, stopLoss=self.myStopLoss, positionIdx=0)
             # Place a limit order for take profit
             self.session.place_order(category="linear", symbol=symbol, side=("Sell" if side == "Buy" else "Buy"),
                                      orderType="Limit", qty=position_qty, price=self.myTakeProfit, reduceOnly=True,
