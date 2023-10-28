@@ -76,19 +76,13 @@ class MyApp(QWidget):
         side_color = 'green' if emitted_side == "Buy" else 'red'
         pnl_color = 'green' if pnl >= 0.0 else 'red'
         true_pnl_color = 'green' if realized_pnl >= 0.0 else 'red'
-        
-
         self.pos_side.setText(f"<font color='{side_color}'><b>Side:</b> {emitted_side}</font>")
         self.pnl_label.setText(f"<font color='{pnl_color}'><b>PNL:</b> {pnl}</font>")
         # self.true_pnl_label.setText(f"<font color='{true_pnl_color}'><b>Actual PNL:</b> {realized_pnl}</font>")
         self.balance_label.setText(f"Balance: {balance}")
-
         if error_message:
             # self.textbox.append(f"update_pnl_and_balance_ui Error: {error_message} /n")
             pass
-
-
-
     def init_session(self, key, secret, testnet):
         # Initialize the trading session with the provided API key, secret, and testnet flag
         try:
