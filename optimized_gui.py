@@ -7,8 +7,8 @@ import sys
 from PyQt5.QtCore import pyqtSignal, QThread, QDateTime, QObject
 from PyQt5.QtCore import QTimer
 
-symbol='1000PEPEUSDT'
-leverage="50"
+symbol='LOOMUSDT'
+leverage="15"
 
 class PnlThread(QThread):
     pnl_updated = pyqtSignal(float, float,float, str, str)  # Add a signal for error handling
@@ -149,6 +149,7 @@ class MyApp(QWidget):
             return
         if side == "NO_CLOSE_POS":
             self.textbox.append("<font face='Roboto' color='turquoise'>{1} <b>| {0} </b></font>".format("No position to close ", timestamp))
+            print("No position to close")
             return
         ticker_price = self.get_ticker_price()
         available_balance = self.get_available_balance()
@@ -183,6 +184,7 @@ class MyApp(QWidget):
                                                 orderType="Market", qty=str(Qty), reduceOnly=True,
                                                 timeInForce="PostOnly", positionIdx="0")
             self.clicked("Close")
+            print("Position Closed")
         else:
             self.clicked("NO_CLOSE_POS")
             # self.textbox.append(f"No position to close: {position_side} ")
@@ -226,7 +228,7 @@ class MyApp(QWidget):
         # print(f"available balance {available_balance}")
         # print(f"ticker price {ticker_price}")
         # print(f"leverage {leverage}")
-        calculated_order_quantity_ = ((available_balance * int(leverage)) / ticker_price) * .2
+        calculated_order_quantity_ = ((available_balance * int(leverage)) / ticker_price) * .9
         # print(f"calc order qty {calculated_order_quantity_}")
         calculated_order_quantity = round(calculated_order_quantity_, decimal_qty)
         # print(f"rounded calc ord qty {(calculated_order_quantity)}")
@@ -283,10 +285,9 @@ class MyApp(QWidget):
     def set_take_profit_stop_loss(self, position_qty, my_entry, side):
         # Set the take profit and stop loss levels for the current position
         self.myTakeProfit = float(my_entry) * (1.005 if side == "Buy" else 0.995)
-        print(f"tp {self.myTakeProfit}")
+        # print(f"tp {self.myTakeProfit}")
         self.myStopLoss = float(my_entry) * (0.996 if side == "Buy" else 1.004)
-        print(f"sl {self.myStopLoss}")
-
+        # print(f"sl {self.myStopLoss}")
         try:
             # Set the trading stop (stop loss) level
             self.session.set_trading_stop(category="linear", symbol=symbol, stopLoss=str(self.myStopLoss), positionIdx=0)
