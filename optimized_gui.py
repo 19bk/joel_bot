@@ -147,37 +147,45 @@ class MyApp(QWidget):
         if side == "Close":
             self.textbox.append("<font face='Roboto' color='#FFAA00'>{1} <b>| {0} </b></font>".format(side, timestamp))
             return
+        if side == "NO_CLOSE_POS":
+            self.textbox.append("<font face='Roboto' color='turquoise'>{1} <b>| {0} </b></font>".format("No position to close ", timestamp))
+            return
         ticker_price = self.get_ticker_price()
         available_balance = self.get_available_balance()
         order_quantity = self.calculate_order_quantity(available_balance, ticker_price, leverage)
         # print(order_quantity)
         self.set_leverage()
-
         self.place_order(order_quantity, side)
         my_entry = self.get_entry_price()
         position_qty = self.get_position_quantity()
-
-        
-
         self.set_take_profit_stop_loss(position_qty, my_entry, side)
 
         if side == "Buy":
             self.textbox.append("<font face='Roboto' color='green'>{1} <b>| {0} </b></font>".format(side, timestamp))
         elif side == "Sell":
             self.textbox.append("<font face='Roboto' color='red'>{1} <b>| {0} </b></font>".format(side, timestamp))
+        
+    def get_max_leverage(self):
+        max_lev_data = self.session.get_risk_limit(
+                                                category="linear",
+                                                symbol=symbol,
+                                            )
+        return max_lev_data
            
     def close_position_clicked(self):
+        # print("close clicked /n")
         self.position_closed = True
         data = self.session.get_positions(category="linear",symbol=symbol)
         Qty = data['result']['list'][0]['size']
         position_side = data['result']['list'][0]['side']
-        if position_side != "None":
+        if position_side != '':
             self.session.place_order(category="linear", symbol=symbol, side=("Sell" if position_side == "Buy" else "Buy"),
                                                 orderType="Market", qty=str(Qty), reduceOnly=True,
                                                 timeInForce="PostOnly", positionIdx="0")
             self.clicked("Close")
         else:
-             self.textbox.append(f"No position to close: {position_side} /n")
+            self.clicked("NO_CLOSE_POS")
+            # self.textbox.append(f"No position to close: {position_side} ")
 
     def getSide(self, side):
         if side == "Buy":
@@ -215,16 +223,18 @@ class MyApp(QWidget):
     def calculate_order_quantity(self, available_balance, ticker_price, leverage):
         # Calculate the order quantity based on available balance, ticker price, and leverage
         decimal_qty = self.calculate_decimal_quantity(ticker_price)
-        print(f"available balance {available_balance}")
-        print(f"ticker price {ticker_price}")
-        print(f"leverage {leverage}")
+        # print(f"available balance {available_balance}")
+        # print(f"ticker price {ticker_price}")
+        # print(f"leverage {leverage}")
         calculated_order_quantity_ = ((available_balance * int(leverage)) / ticker_price) * .2
-        print(f"calc order qty {calculated_order_quantity_}")
+        # print(f"calc order qty {calculated_order_quantity_}")
         calculated_order_quantity = round(calculated_order_quantity_, decimal_qty)
-        print(f"rounded calc ord qty {(calculated_order_quantity)}")
+        # print(f"rounded calc ord qty {(calculated_order_quantity)}")
         return calculated_order_quantity
     
     def set_leverage(self):
+        # lev = self.get_max_leverage()
+        # print(lev)
         # Set the leverage for trading
         try:
             self.session.set_leverage(category="linear", symbol=symbol, buyLeverage=leverage, sellLeverage=leverage)
