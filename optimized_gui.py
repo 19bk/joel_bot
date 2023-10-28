@@ -1,6 +1,4 @@
 import random
-import os
-from dotenv import load_dotenv
 from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QTextEdit, QLabel
 from pybit.unified_trading import HTTP
 import ccxt
@@ -8,20 +6,9 @@ from time import sleep
 import sys
 from PyQt5.QtCore import pyqtSignal, QThread, QDateTime, QObject
 from PyQt5.QtCore import QTimer
-import os
-from dotenv import load_dotenv
 
-# Load environment variables from the .env file
-load_dotenv()
-
-# Fetch API_KEY and API_SECRET from environment variables
-API_KEY = os.getenv("API_KEY")
-API_SECRET = os.getenv("API_SECRET")
-
-symbol='BTCUSDT'
+symbol='1000PEPEUSDT'
 leverage="50"
-take_profit_percentage = 0.6  # Represents 0.5%
-stop_loss_percentage = 0.4   # Represents 0.4%
 
 class PnlThread(QThread):
     pnl_updated = pyqtSignal(float, float,float, str, str)  # Add a signal for error handling
@@ -77,9 +64,6 @@ class MyApp(QWidget):
         self.pnl_thread = PnlThread(self.exchange, self.session, self.symbol)
         self.pnl_thread.pnl_updated.connect(self.update_pnl_and_balance_ui)
         self.pnl_thread.start()
-
-    def random_side_chooser(self):
-        return random.choice(['Buy', 'Sell'])
     
     def delayed_order(self, chosen_side):
         if chosen_side == "Sell":
@@ -102,23 +86,7 @@ class MyApp(QWidget):
         if error_message:
             # self.textbox.append(f"update_pnl_and_balance_ui Error: {error_message} /n")
             pass
-        
-        # print(pnl)
-        # if pnl >= 20 and not self.position_closed:
-        #     self.position_closed = True
-            
-        #     self.close_position_clicked()
-        #     self.textbox.append(f"Position closed with Profit {pnl}")
-        #     chosen_side = self.random_side_chooser()
-        #     QTimer.singleShot(10000, lambda: self.delayed_order(chosen_side))  # 10 seconds delay
 
-        # elif pnl <= -60 and not self.position_closed:
-        #     # self.textbox.append(f"Position closed with Loss {pnl}")
-        #     self.close_position_clicked()
-        #     self.textbox.append(f"Position closed with Loss {pnl}")
-        #     chosen_side = self.random_side_chooser()
-
-        #     QTimer.singleShot(10000, lambda: self.delayed_order(chosen_side))  # 10 seconds delay
 
 
     def init_session(self, key, secret, testnet):
@@ -181,63 +149,53 @@ class MyApp(QWidget):
         self.clicked("Sell")
 
     def clicked(self, side):
+        timestamp = QDateTime.currentDateTime().toString("yyyy-MMM-dd hh:mm:ss ")
+        if side == "Close":
+            self.textbox.append("<font face='Roboto' color='#FFAA00'>{1} <b>| {0} </b></font>".format(side, timestamp))
+            return
         ticker_price = self.get_ticker_price()
         available_balance = self.get_available_balance()
         order_quantity = self.calculate_order_quantity(available_balance, ticker_price, leverage)
-        print(order_quantity)
+        # print(order_quantity)
         self.set_leverage()
 
         self.place_order(order_quantity, side)
         my_entry = self.get_entry_price()
         position_qty = self.get_position_quantity()
 
-        timestamp = QDateTime.currentDateTime().toString("yyyy-MMM-dd hh:mm:ss ")
+        
 
         self.set_take_profit_stop_loss(position_qty, my_entry, side)
 
         if side == "Buy":
             self.textbox.append("<font face='Roboto' color='green'>{1} <b>| {0} </b></font>".format(side, timestamp))
-            # self.textbox.append(f"Take Profit: {self.myTakeProfit}")
-            # self.textbox.append(f"Stop Loss: {self.myStopLoss}")
-            # self.textbox.append(f"Entry Price: {my_entry}") 
-            # pass     
-        elif side == "Close":
-            self.textbox.append("<font face='Roboto' color='#FFAA00'>{1} <b>| {0} </b></font>".format(side, timestamp))
         elif side == "Sell":
             self.textbox.append("<font face='Roboto' color='red'>{1} <b>| {0} </b></font>".format(side, timestamp))
-            # self.textbox.append(f"Take Profit: {self.myTakeProfit}")
-            # self.textbox.append(f"Stop Loss: {self.myStopLoss}")
-            # self.textbox.append(f"Entry Price: {my_entry}")
-
-    
+           
     def close_position_clicked(self):
         self.position_closed = True
         data = self.session.get_positions(category="linear",symbol=symbol)
         Qty = data['result']['list'][0]['size']
         position_side = data['result']['list'][0]['side']
         if position_side != "None":
-            self.clicked("Close")
-            
-            # print(Qty)
-            # exchange.create_order(symbol, amount=Qty, type='Market', side='sell', params={'reduce_only': True})
             self.session.place_order(category="linear", symbol=symbol, side=("Sell" if position_side == "Buy" else "Buy"),
-                                                orderType="Market", qty=Qty, reduceOnly=True,
+                                                orderType="Market", qty=str(Qty), reduceOnly=True,
                                                 timeInForce="PostOnly", positionIdx="0")
-            # self.textbox.append("Position closed.")
-        # else:
-        #     self.textbox.append("No Position To close")
-
+            self.clicked("Close")
+        else:
+             self.textbox.append(f"No position to close: {position_side} /n")
 
     def getSide(self, side):
         if side == "Buy":
             self.pos_side.setText(f"<font color='green'><b>Side:</b> {side}</font>")
         else:
             self.pos_side.setText(f"<font color='red'><b>Side:</b> {side}</font>")
-
+            
     def get_ticker_price(self):
-        # Get the current ticker price for BTC
-        btc_price = self.session.get_tickers(category="linear", symbol=symbol)
-        return float(btc_price['result']['list'][0]['lastPrice'])
+        # Get the current ticker price 
+        ticker_price = self.session.get_tickers(category="linear", symbol=symbol)
+        # print(ticker_price)
+        return float(ticker_price['result']['list'][0]['markPrice'])  # Change 'lastPrice' to 'markPrice'
 
     def get_available_balance(self):
         # Get the available balance in the account
@@ -263,9 +221,13 @@ class MyApp(QWidget):
     def calculate_order_quantity(self, available_balance, ticker_price, leverage):
         # Calculate the order quantity based on available balance, ticker price, and leverage
         decimal_qty = self.calculate_decimal_quantity(ticker_price)
-        calculated_order_quantity = ((available_balance * int(leverage)) / ticker_price) * .9
-        calculated_order_quantity = round(calculated_order_quantity, decimal_qty)
-        # print(type(calculated_order_quantity))
+        print(f"available balance {available_balance}")
+        print(f"ticker price {ticker_price}")
+        print(f"leverage {leverage}")
+        calculated_order_quantity_ = ((available_balance * int(leverage)) / ticker_price) * .2
+        print(f"calc order qty {calculated_order_quantity_}")
+        calculated_order_quantity = round(calculated_order_quantity_, decimal_qty)
+        print(f"rounded calc ord qty {(calculated_order_quantity)}")
         return calculated_order_quantity
     
     def set_leverage(self):
@@ -281,8 +243,8 @@ class MyApp(QWidget):
         # print(type(self.calculate_order_quantity()))
         try:
             self.set_margin_mode()
-            my_order = self.session.place_order(category="linear", symbol=symbol, side=side, orderType="Market",
-                                                qty=order_quantity)
+            my_order = self.session.place_order(category="linear", symbol=symbol, side=str(side), orderType="Market",
+                                                qty=str(order_quantity))
             return my_order['result']['orderId']
         except Exception as e:
             # self.textbox.append(f"place_order Failed: {e} /n")
@@ -304,6 +266,7 @@ class MyApp(QWidget):
         try:
             data = self.session.get_positions(category="linear",symbol=self.symbol,)
             Qty = data['result']['list'][0]['size']
+            # print(Qty)
             return Qty
         except Exception as e:
             print(e)
@@ -315,28 +278,27 @@ class MyApp(QWidget):
 
     def set_take_profit_stop_loss(self, position_qty, my_entry, side):
         # Set the take profit and stop loss levels for the current position
-        if side == "Buy":
-            self.myTakeProfit = round(float(my_entry) * (1 + take_profit_percentage / 100), 2)
-            self.myStopLoss = round(float(my_entry) * (1 - stop_loss_percentage / 100), 2)
-        else:
-            self.myTakeProfit = round(float(my_entry) * (1 - take_profit_percentage / 100), 2)
-            self.myStopLoss = round(float(my_entry) * (1 + stop_loss_percentage / 100), 2)
-        
+        self.myTakeProfit = float(my_entry) * (1.005 if side == "Buy" else 0.995)
+        print(f"tp {self.myTakeProfit}")
+        self.myStopLoss = float(my_entry) * (0.996 if side == "Buy" else 1.004)
+        print(f"sl {self.myStopLoss}")
 
         try:
             # Set the trading stop (stop loss) level
-            self.session.set_trading_stop(category="linear", symbol=symbol, stopLoss=self.myStopLoss, positionIdx=0)
+            self.session.set_trading_stop(category="linear", symbol=symbol, stopLoss=str(self.myStopLoss), positionIdx=0)
+        except Exception as e:
+            print(f"set_trading_stop_ loss :: {e}")
+        try:
             # Place a limit order for take profit
             self.session.place_order(category="linear", symbol=symbol, side=("Sell" if side == "Buy" else "Buy"),
-                                     orderType="Limit", qty=position_qty, price=self.myTakeProfit, reduceOnly=True,
-                                     timeInForce="PostOnly", positionIdx="0")
+                                     orderType="Limit", qty=str(position_qty), price=str(self.myTakeProfit), reduceOnly=True,
+                                     timeInForce="PostOnly")
             print(f"{side} position placed")
         except Exception as e:
-            # self.close_position_clicked()
-            print(f"settakeprofit error{e}")
+            print(f"set_take_profit :: {e}")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = MyApp(API_KEY, API_SECRET)  # Using the environment variables here
+    ex = MyApp("LUTr5ux8UK85oMM5Tj", "tSbq88myGBidovLvlIxAbDlbVpmRgdyYklBv")
     ex.start_pnl_thread()
     sys.exit(app.exec_())
