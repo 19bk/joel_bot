@@ -7,7 +7,7 @@ import sys
 from PyQt5.QtCore import pyqtSignal, QThread, QDateTime, QObject
 from PyQt5.QtCore import QTimer
 
-symbol='LOOMUSDT'
+symbol='GPTUSDT'
 leverage="15"
 
 class PnlThread(QThread):
