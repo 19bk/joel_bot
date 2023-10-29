@@ -284,9 +284,9 @@ class MyApp(QWidget):
 
     def set_take_profit_stop_loss(self, position_qty, my_entry, side):
         # Set the take profit and stop loss levels for the current position
-        self.myTakeProfit = float(my_entry) * (1.005 if side == "Buy" else 0.995)
+        self.myTakeProfit = float(my_entry) * (1.008 if side == "Buy" else 0.996)
         # print(f"tp {self.myTakeProfit}")
-        self.myStopLoss = float(my_entry) * (0.996 if side == "Buy" else 1.004)
+        self.myStopLoss = float(my_entry) * (0.996 if side == "Buy" else 1.008)
         # print(f"sl {self.myStopLoss}")
         try:
             # Set the trading stop (stop loss) level
