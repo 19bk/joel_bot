@@ -7,8 +7,8 @@ import sys
 from PyQt5.QtCore import pyqtSignal, QThread, QDateTime, QObject
 from PyQt5.QtCore import QTimer
 
-symbol='GPTUSDT'
-leverage="15"
+symbol='BTCUSDT'
+leverage="50"
 
 class PnlThread(QThread):
     pnl_updated = pyqtSignal(float, float,float, str, str)  # Add a signal for error handling
