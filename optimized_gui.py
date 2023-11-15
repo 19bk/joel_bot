@@ -7,7 +7,7 @@ import sys
 from PyQt5.QtCore import pyqtSignal, QThread, QDateTime, QObject
 from PyQt5.QtCore import QTimer
 
-symbol='TIAUSDT'
+symbol='SOLUSDT'
 leverage="10"
 
 class PnlThread(QThread):
@@ -159,6 +159,7 @@ class MyApp(QWidget):
         self.place_order(order_quantity, side)
         my_entry = self.get_entry_price()
         position_qty = self.get_position_quantity()
+        print(position_qty)
         self.set_take_profit_stop_loss(position_qty, my_entry, side)
 
         if side == "Buy":
