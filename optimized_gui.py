@@ -7,8 +7,8 @@ import sys
 from PyQt5.QtCore import pyqtSignal, QThread, QDateTime, QObject
 from PyQt5.QtCore import QTimer
 
-symbol='BTCUSDT'
-leverage="50"
+symbol='TIAUSDT'
+leverage="10"
 
 class PnlThread(QThread):
     pnl_updated = pyqtSignal(float, float,float, str, str)  # Add a signal for error handling
@@ -49,7 +49,7 @@ class PnlThread(QThread):
 class MyApp(QWidget):
     pnl_updated = pyqtSignal(float, float, str)
 
-    def __init__(self, key, secret, testnet=True):
+    def __init__(self, key, secret, testnet=False):
         super().__init__()
         self.initUI()
         self.session = self.init_session(key, secret, testnet)
@@ -284,9 +284,9 @@ class MyApp(QWidget):
 
     def set_take_profit_stop_loss(self, position_qty, my_entry, side):
         # Set the take profit and stop loss levels for the current position
-        self.myTakeProfit = float(my_entry) * (1.008 if side == "Buy" else 0.996)
+        self.myTakeProfit = float(my_entry) * (1.015 if side == "Buy" else 0.985)
         # print(f"tp {self.myTakeProfit}")
-        self.myStopLoss = float(my_entry) * (0.996 if side == "Buy" else 1.008)
+        self.myStopLoss = float(my_entry) * (0.990 if side == "Buy" else 1.010)
         # print(f"sl {self.myStopLoss}")
         try:
             # Set the trading stop (stop loss) level
@@ -304,6 +304,6 @@ class MyApp(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = MyApp("LUTr5ux8UK85oMM5Tj", "tSbq88myGBidovLvlIxAbDlbVpmRgdyYklBv")
+    ex = MyApp("Ouoiev4HFbmcLBWAD7", "bVqoB0hEF1uPf7BwS2oYPCVd3tGDmjljwfnv")
     ex.start_pnl_thread()
     sys.exit(app.exec_())
