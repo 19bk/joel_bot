@@ -89,8 +89,6 @@ class MyApp(QWidget):
         except Exception as e:
             print(f"here {e}")
 
- 
-
     def initUI(self):
         # Initialize the user interface (UI) layout
         layout = QVBoxLayout()
