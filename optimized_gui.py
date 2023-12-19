@@ -13,9 +13,9 @@ leverage="10"
 class PnlThread(QThread):
     pnl_updated = pyqtSignal(float, float,float, str, str)  # Add a signal for error handling
 
-    def __init__(self, exchange, session, symbol):
+    def __init__(self, session, symbol):
         super().__init__()
-        self.exchange = exchange
+        
         self.session = session
         self.symbol = symbol
 
@@ -53,7 +53,6 @@ class MyApp(QWidget):
         super().__init__()
         self.initUI()
         self.session = self.init_session(key, secret, testnet)
-        self.exchange = self.init_exchange(key, secret)
         self.symbol = symbol
         self.leverage = leverage
         self.pnl_thread = None  # Initialize the thread reference
@@ -61,7 +60,7 @@ class MyApp(QWidget):
 
 
     def start_pnl_thread(self):
-        self.pnl_thread = PnlThread(self.exchange, self.session, self.symbol)
+        self.pnl_thread = PnlThread( self.session, self.symbol)
         self.pnl_thread.pnl_updated.connect(self.update_pnl_and_balance_ui)
         self.pnl_thread.start()
     
@@ -90,11 +89,7 @@ class MyApp(QWidget):
         except Exception as e:
             print(f"here {e}")
 
-    def init_exchange(self, key, secret):
-        # Initialize the exchange object (ccxt) with the provided API key and secret
-        exchange = ccxt.bybit({'apiKey': key, 'secret': secret, "options": {'defaultType': 'future'}})
-        exchange.set_sandbox_mode(True)  # Set sandbox mode for testing
-        return exchange
+ 
 
     def initUI(self):
         # Initialize the user interface (UI) layout
@@ -305,6 +300,6 @@ class MyApp(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = MyApp("Ouoiev4HFbmcLBWAD7", "bVqoB0hEF1uPf7BwS2oYPCVd3tGDmjljwfnv")
+    ex = MyApp("LUTr5ux8UK85oMM5Tj", "tSbq88myGBidovLvlIxAbDlbVpmRgdyYklBv")
     ex.start_pnl_thread()
     sys.exit(app.exec_())
