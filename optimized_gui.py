@@ -1,7 +1,6 @@
 import random
 from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QTextEdit, QLabel
 from pybit.unified_trading import HTTP
-import ccxt
 from time import sleep
 import sys
 from PyQt5.QtCore import pyqtSignal, QThread, QDateTime, QObject
